@@ -99,15 +99,22 @@ export default function ChatWidget({ userId }: { userId?: string }) {
                             aiReply.includes("not available") || 
                             aiReply.includes("could not add");
 
-        // 🔄 STABLE CART COUNT LOGIC WITH OUT-OF-STOCK HANDLING
-        if (cleanText.includes("clear") || cleanText.includes("empty") || cleanText.includes("remove all")) {
+        // 🔄 STABLE CART COUNT LOGIC WITH OUT-OF-STOCK & CHECKOUT HANDLING
+        if (
+          cleanText.includes("clear") || 
+          cleanText.includes("empty") || 
+          cleanText.includes("remove all") ||
+          data.action === "checkout_cart" || 
+          (data.payload && data.payload.forceResetCartCount)
+        ) {
+          // 💡 CRUCIAL FIX: Force counter down to 0 instantly if a checkout action is triggered or requested
           setCartCount(0);
         } else if (itemsList && Array.isArray(itemsList) && itemsList.length > 0) {
           // Absolute source of truth: use the database array if provided
           const totalQuantity = itemsList.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
           setCartCount(totalQuantity);
         } else if ((cleanText.includes("add") || data.action === "modify_cart") && !isOutOfStock) {
-          // 💡 ONLY increment if the item was successfully available and added!
+          // ONLY increment if the item was successfully available and added!
           setCartCount(prev => prev + 1);
         }
 
