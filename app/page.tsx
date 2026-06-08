@@ -1,19 +1,28 @@
 // app/page.tsx
+// app/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { SessionProvider, useSession, signOut } from "next-auth/react";
-// 🔌 IMPORT YOUR CHAT INTERFACE HERE:
-import ChatWidget from "@/app/components/ChatWidget";
+import { useRouter } from "next/navigation";
+// 🔌 Connecting directly to your primary conversational module
+import ChatWidget from "./components/ChatWidget"; 
 
-// 1. This component safely manages the chat dashboard layout and user state
 function ChatBotDashboard() {
   const { data: session, status } = useSession();
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // 🛡️ Guard: Force unauthenticated traffic to /login
+  useEffect(() => {
+    if (mounted && status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [mounted, status, router]);
 
   if (!mounted || status === "loading") {
     return (
@@ -23,8 +32,14 @@ function ChatBotDashboard() {
     );
   }
 
-  // ✨ EXTRACT REALSYS USER ID: Safely fetch the custom database ID added by NextAuth
-  // If your next-auth configuration places the ID under session.user.id, fallback to email if necessary
+  if (!session) {
+    return (
+      <div style={{ padding: "50px", textAlign: "center", fontFamily: "sans-serif", color: "#666" }}>
+        Redirecting to secure login...
+      </div>
+    );
+  }
+
   const activeUserId = (session as any)?.user?.id || session?.user?.email || "guest";
 
   return (
@@ -54,14 +69,13 @@ function ChatBotDashboard() {
       </header>
 
       <main style={{ marginTop: "40px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-        {/* 🤖 CHANGED: Transformed placeholder into an interactive workspace wrapper */}
-        <div style={{ width: "100%", maxWidth: "500px", padding: "20px", background: "#fafafa", borderRadius: "12px", border: "1px solid #eaeaea" }}>
+        <div style={{ width: "100%", maxWidth: "600px", padding: "20px", background: "#fafafa", borderRadius: "12px", border: "1px solid #eaeaea" }}>
           <h3 style={{ margin: "0 0 15px 0", color: "#333" }}>🤖 Conversational Personal Shopper</h3>
           <p style={{ color: "#666", fontSize: "14px", marginBottom: "20px" }}>
             Ask me to search for shirts or pants, add items to your cart, or check out when ready!
           </p>
           
-          {/* ✨ MOVED CHAT INTERFACE HERE INLINE */}
+          {/* Passes the secure tracking ID into your core feature component */}
           <ChatWidget userId={activeUserId} />
         </div>
       </main>
@@ -69,7 +83,6 @@ function ChatBotDashboard() {
   );
 }
 
-// 2. This is the main page wrapper that supplies the required authentication context
 export default function Home() {
   return (
     <SessionProvider>
