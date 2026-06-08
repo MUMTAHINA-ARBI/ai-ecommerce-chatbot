@@ -301,6 +301,8 @@ export async function POST(req: Request) {
               { $set: { cart: [] } } as any
             );
             replyText = "🎉 Fantastic! Your order has been securely placed. Thank you for shopping with us!";
+            // 💡 Ensure payload specifically tells frontend UI to clear tracking states completely
+            actionPayload = { orderStatus: "SUCCESS", forceResetCartCount: true };
           }
         }
       }
