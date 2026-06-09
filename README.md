@@ -1,7 +1,8 @@
 # 🛍️ E-Commerce AI Chatbot Application
 
 Welcome to our AI-powered e-commerce store! This application features an advanced personal shopper chatbot built directly into a Next.js framework, linked natively to a live MongoDB Atlas database.
-
+### 🌐 Live Production Demo
+Click here to test the live application: **[ai-ecommerce-chatbot-swart.vercel.app/login](https://ai-ecommerce-chatbot-swart.vercel.app/login)**
 ---
 
 ## 📖 How to Use the AI Personal Shopper Chatbot
